@@ -1,6 +1,8 @@
 import datetime
 import chromadb
 import traceback
+import pandas as pd
+import os , time
 
 from chromadb.utils import embedding_functions
 
@@ -12,8 +14,60 @@ gpt_emb_config = get_model_configuration(gpt_emb_version)
 dbpath = "./"
 
 def generate_hw01():
-    pass
+    # 讀取 CSV 檔案
+    file_path = os.path.join(dbpath, "COA_OpenData.csv")
+    df = pd.read_csv(file_path)
+
+    # 初始化 ChromaDB 並使用 SQLite 作為存儲
+    db_path = "./"
+    chroma_client = chromadb.PersistentClient(path=db_path)
+
+    openai_ef = embedding_functions.OpenAIEmbeddingFunction(
+    api_key = gpt_emb_config['api_key'],
+    api_base = gpt_emb_config['api_base'],
+    api_type = gpt_emb_config['openai_type'],
+    api_version = gpt_emb_config['api_version'],
+    deployment_id = gpt_emb_config['deployment_name']
+    )
+
+    # 創建一個 collection
+    collection = chroma_client.get_or_create_collection(
+        name="TRAVEL",
+        metadata={"hnsw:space": "cosine"},
+        embedding_function=openai_ef
+        )
     
+    # 6️⃣ 轉換日期格式並準備資料
+    records = []
+    for index, row in df.iterrows():
+            host_words = str(row.get("HostWords", "")).strip()  # 提取 `HostWords` 欄位作為文本數據
+            if not host_words:  # 如果 `HostWords` 為空，則跳過
+                continue
+
+            metadata = {
+            "file_name": "COA_OpenData.csv",
+            "name": row.get("name", ""),
+            "type": row.get("type", ""),
+            "address": row.get("address", ""),
+            "tel": row.get("tel", ""),
+            "city": row.get("city", ""),
+            "town": row.get("town", ""),
+            "date": int(time.mktime(pd.to_datetime(row.get("CreateDate", "1970-01-01")).timetuple()))  # 轉換為時間戳
+            }
+
+            records.append((str(index), host_words, metadata))  # 使用 index 作為 id
+
+    if records:
+        collection.add(
+        ids=[r[0] for r in records],            # 每筆數據的 ID
+        documents=[r[1] for r in records],       # `HostWords` 作為文本數據
+        metadatas=[r[2] for r in records]        # Metadata 附加資訊
+        )   
+
+    print(collection.count())
+    return collection
+    
+
 def generate_hw02(question, city, store_type, start_date, end_date):
     pass
     
@@ -36,3 +90,5 @@ def demo(question):
     )
     
     return collection
+
+generate_hw01()
