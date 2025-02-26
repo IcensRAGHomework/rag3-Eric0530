@@ -37,6 +37,9 @@ def generate_hw01():
         embedding_function=openai_ef
         )
     
+    # 轉換 CreateDate 欄位為 datetime
+    df["CreateDate"] = pd.to_datetime(df["CreateDate"], errors="coerce")
+
     # 6️⃣ 轉換日期格式並準備資料
     records = []
     for index, row in df.iterrows():
@@ -44,6 +47,8 @@ def generate_hw01():
             if not host_words:  # 如果 `HostWords` 為空，則跳過
                 continue
 
+            # 將 CreateDate 轉換為 Unix 時間戳格式（秒）
+            timestamp = int(time.mktime(row["CreateDate"].timetuple())) if pd.notnull(row["CreateDate"]) else None
 
             metadata = {
             "file_name": "COA_OpenData.csv",
@@ -53,7 +58,7 @@ def generate_hw01():
             "tel": row.get("Tel", ""),
             "city": row.get("City", ""),
             "town": row.get("Town", ""),
-            "date": row.get("CreateDate", ""),
+            "date": timestamp  # 存入 Unix 時間戳格式
             }
 
             records.append((str(index), host_words, metadata))  # 使用 index 作為 id
