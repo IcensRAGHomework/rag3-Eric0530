@@ -14,9 +14,7 @@ gpt_emb_config = get_model_configuration(gpt_emb_version)
 dbpath = "./"
 
 def generate_hw01():
-    # 讀取 CSV 檔案
-    file_path = os.path.join(dbpath, "COA_OpenData.csv")
-    df = pd.read_csv(file_path)
+    
      
     # 初始化 ChromaDB 並使用 SQLite 作為存儲
     #db_path = "./"
@@ -37,8 +35,12 @@ def generate_hw01():
         embedding_function=openai_ef
         )
     
-    if collection.count() != 0 :
+    if collection.count() != 0:
         return collection
+    
+        # 讀取 CSV 檔案
+    file_path = os.path.join(dbpath, "COA_OpenData.csv")
+    df = pd.read_csv(file_path)
 
     # 轉換 CreateDate 欄位為 datetime
     df["CreateDate"] = pd.to_datetime(df["CreateDate"], errors="coerce")
