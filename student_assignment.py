@@ -37,6 +37,9 @@ def generate_hw01():
         embedding_function=openai_ef
         )
     
+    if collection.count() != 0 :
+        return collection
+
     # 轉換 CreateDate 欄位為 datetime
     df["CreateDate"] = pd.to_datetime(df["CreateDate"], errors="coerce")
 
@@ -70,7 +73,7 @@ def generate_hw01():
         metadatas=[r[2] for r in records]        # Metadata 附加資訊
         )   
 
-    print(collection.count)
+    print(collection.count())
     return collection
     
 
@@ -98,10 +101,9 @@ def generate_hw02(question, city, store_type, start_date, end_date):
     result = collection.query(
         query_embeddings=question_embeding,
         n_results=10,
+        where={"$and": [{"city":{"$in":city}},{"type":{"$in":store_type}}]}
         )
-
     print(result)
-
     return result
 
 
@@ -128,4 +130,6 @@ def demo(question):
 generate_hw01()
 city=["宜蘭縣", "新北市"]
 type=["美食"]
-#generate_hw02("我想要找有關茶餐點的店家",city,type,"2024-01-01","2024-12-31")
+start_date = datetime.datetime(2024, 1, 1)
+End_date = datetime.datetime(2024, 12, 31)
+#generate_hw02("我想要找有關茶餐點的店家",city,type,start_date,End_date)
