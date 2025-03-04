@@ -124,7 +124,49 @@ def generate_hw02(question, city, store_type, start_date, end_date):
 
 
 def generate_hw03(question, store_name, new_store_name, city, store_type):
-    pass
+
+# 連接到已經建立的 ChromaDB SQLite
+    chroma_client = chromadb.PersistentClient(path=dbpath)
+
+    openai_ef = embedding_functions.OpenAIEmbeddingFunction(
+    api_key = gpt_emb_config['api_key'],
+    api_base = gpt_emb_config['api_base'],
+    api_type = gpt_emb_config['openai_type'],
+    api_version = gpt_emb_config['api_version'],
+    deployment_id = gpt_emb_config['deployment_name']
+    )
+
+    # 取得 Collection
+    collection = chroma_client.get_or_create_collection(
+        name="TRAVEL",
+        metadata={"hnsw:space": "cosine"},
+        embedding_function=openai_ef
+
+        )
+    question_embeding = openai_ef([question])
+
+    data_ida=collection.query(
+        query_embeddings=question_embeding,
+        n_results=10,
+        where={"name": {"$eq": store_name}}
+        )
+    target_id = data_ida["ids"][0][0]
+    collection.update(
+        ids=[target_id],
+        metadatas=[{"name": "田媽媽（耄饕客棧）"}]
+    )
+    result = collection.query(
+        query_embeddings=question_embeding,
+        n_results=10,
+        #where={"$and": [{"city":{"$in":city}},{"type":{"$in":store_type}},{"name": {"$eq": store_name}}]}
+        where={"$and": [{"city":{"$in":city}},{"type":{"$in":store_type}}]}
+        )
+
+    #print(result)
+    answer=Data_match(result)
+    print(answer)
+    return answer
+
     
 def demo(question):
     chroma_client = chromadb.PersistentClient(path=dbpath)
@@ -144,8 +186,10 @@ def demo(question):
     return collection
 
 #generate_hw01()
-city=["宜蘭縣", "新北市"]
-type=["美食"]
+#city=["宜蘭縣", "新北市"]
+city=["南投縣"]
+store_type=["美食"]
 start_date = datetime.datetime(2024, 1, 1)
 End_date = datetime.datetime(2024, 12, 31)
-generate_hw02("我想要找有關茶餐點的店家",city,type,start_date,End_date)
+#generate_hw02("我想要找有關茶餐點的店家",city,type,start_date,End_date)
+generate_hw03("我想要找南投縣的田媽媽餐廳，招牌是蕎麥麵", "耄饕客棧", "田媽媽（耄饕客棧）", city, store_type)
