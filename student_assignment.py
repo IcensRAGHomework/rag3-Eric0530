@@ -141,7 +141,6 @@ def generate_hw03(question, store_name, new_store_name, city, store_type):
         name="TRAVEL",
         metadata={"hnsw:space": "cosine"},
         embedding_function=openai_ef
-
         )
     question_embeding = openai_ef([question])
 
@@ -151,21 +150,21 @@ def generate_hw03(question, store_name, new_store_name, city, store_type):
         where={"name": {"$eq": store_name}}
         )
     target_id = data_ida["ids"][0][0]
+
     collection.update(
         ids=[target_id],
-        metadatas=[{"name": "田媽媽（耄饕客棧）"}]
+        metadatas=[{"name": "田媽媽(耄饕客棧)"}]
     )
-    result = collection.query(
+    result_hw03 = collection.query(
         query_embeddings=question_embeding,
         n_results=10,
         #where={"$and": [{"city":{"$in":city}},{"type":{"$in":store_type}},{"name": {"$eq": store_name}}]}
         where={"$and": [{"city":{"$in":city}},{"type":{"$in":store_type}}]}
         )
 
-    #print(result)
-    answer=Data_match(result)
-    print(answer)
-    return answer
+    answer_hw03=Data_match(result_hw03)
+    print(answer_hw03)
+    return answer_hw03
 
     
 def demo(question):
@@ -191,5 +190,5 @@ city_hw03=["南投縣"]
 store_type=["美食"]
 start_date = datetime.datetime(2024, 1, 1)
 End_date = datetime.datetime(2024, 12, 31)
-#generate_hw02("我想要找有關茶餐點的店家",city,type,start_date,End_date)
-generate_hw03("我想要找南投縣的田媽媽餐廳，招牌是蕎麥麵", "耄饕客棧", "田媽媽（耄饕客棧）", city_hw03, store_type)
+#generate_hw02("我想要找有關茶餐點的店家",city,store_type,start_date,End_date)
+generate_hw03("我想要找南投縣的田媽媽餐廳，招牌是蕎麥麵", "耄饕客棧", "田媽媽(耄饕客棧)", city_hw03, store_type)
