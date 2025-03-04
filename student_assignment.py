@@ -188,7 +188,7 @@ def demo(question):
 city=["宜蘭縣", "新北市"]
 city_hw03=["南投縣"]
 store_type=["美食"]
-start_date = datetime.datetime(2024, 1, 1)
-End_date = datetime.datetime(2024, 12, 31)
-#generate_hw02("我想要找有關茶餐點的店家",city,store_type,start_date,End_date)
-generate_hw03("我想要找南投縣的田媽媽餐廳，招牌是蕎麥麵", "耄饕客棧", "田媽媽(耄饕客棧)", city_hw03, store_type)
+start_date = datetime.datetime(2024, 4, 1)
+End_date = datetime.datetime(2024, 5, 1)
+generate_hw02("我想要找有關茶餐點的店家",city,store_type,start_date,End_date)
+#generate_hw03("我想要找南投縣的田媽媽餐廳，招牌是蕎麥麵", "耄饕客棧", "田媽媽(耄饕客棧)", city_hw03, store_type)
