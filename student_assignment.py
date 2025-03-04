@@ -13,6 +13,15 @@ gpt_emb_config = get_model_configuration(gpt_emb_version)
 
 dbpath = "./"
 
+def Data_match(sort_data):
+    filter_similiar=[]
+    filter_name=[]
+    for name , distance in zip(sort_data["metadatas"][0] , sort_data["distances"][0]): 
+        filter_similiar.append(1-distance)
+        filter_name.append(name["name"])
+        
+    return filter_name
+    
 def generate_hw01():
     
      
@@ -105,8 +114,10 @@ def generate_hw02(question, city, store_type, start_date, end_date):
         n_results=10,
         where={"$and": [{"city":{"$in":city}},{"type":{"$in":store_type}}]}
         )
-    print(result)
-    return result
+    #print(result)
+    answer=Data_match(result)
+    print(answer)
+    return answer
 
 
 def generate_hw03(question, store_name, new_store_name, city, store_type):
@@ -129,9 +140,9 @@ def demo(question):
     
     return collection
 
-generate_hw01()
+#generate_hw01()
 city=["宜蘭縣", "新北市"]
 type=["美食"]
 start_date = datetime.datetime(2024, 1, 1)
 End_date = datetime.datetime(2024, 12, 31)
-#generate_hw02("我想要找有關茶餐點的店家",city,type,start_date,End_date)
+generate_hw02("我想要找有關茶餐點的店家",city,type,start_date,End_date)
