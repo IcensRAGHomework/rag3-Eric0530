@@ -17,14 +17,14 @@ def Data_match(sort_data):
     filter_similiar=[]
     filter_name=[]
     for name , distance in zip(sort_data["metadatas"][0] , sort_data["distances"][0]): 
-        filter_similiar.append(1-distance)
-        filter_name.append(name["name"])
-        
+        if 1-distance >= 0.8:
+            filter_similiar.append(1-distance)
+            filter_name.append(name["name"])
+       
     return filter_name
     
 def generate_hw01():
-    
-     
+  
     # 初始化 ChromaDB 並使用 SQLite 作為存儲
     #db_path = "./"
     chroma_client = chromadb.PersistentClient(path=dbpath)
@@ -108,11 +108,14 @@ def generate_hw02(question, city, store_type, start_date, end_date):
 
         )
     question_embeding = openai_ef([question])
+    timestamp_start=int(start_date.timestamp())
+    timestamp_end=int(end_date.timestamp())
+    print(timestamp_end)
 
     result = collection.query(
         query_embeddings=question_embeding,
         n_results=10,
-        where={"$and": [{"city":{"$in":city}},{"type":{"$in":store_type}}]}
+        where={"$and": [{"city":{"$in":city}},{"type":{"$in":store_type}},{"date": {"$gte": timestamp_start}},{"date": {"$lte": timestamp_end}}]}
         )
     #print(result)
     answer=Data_match(result)
