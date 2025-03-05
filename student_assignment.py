@@ -19,8 +19,11 @@ def Data_match(sort_data):
     for name , distance in zip(sort_data["metadatas"][0] , sort_data["distances"][0]): 
         if 1-distance >= 0.8:
             filter_similiar.append(1-distance)
-            filter_name.append(name["name"])
-       
+            if "new_store_name" in name:
+                filter_name.append(name["new_store_name"])
+            else:
+                filter_name.append(name["name"])
+          
     return filter_name
     
 def generate_hw01():
@@ -110,8 +113,7 @@ def generate_hw02(question, city, store_type, start_date, end_date):
     question_embeding = openai_ef([question])
     timestamp_start=int(start_date.timestamp())
     timestamp_end=int(end_date.timestamp())
-    print(timestamp_end)
-
+    
     result = collection.query(
         query_embeddings=question_embeding,
         n_results=10,
@@ -153,7 +155,7 @@ def generate_hw03(question, store_name, new_store_name, city, store_type):
 
     collection.update(
         ids=[target_id],
-        metadatas=[{"name": "田媽媽(耄饕客棧)"}]
+        metadatas=[{"new_store_name": new_store_name}]
     )
     result_hw03 = collection.query(
         query_embeddings=question_embeding,
@@ -161,7 +163,7 @@ def generate_hw03(question, store_name, new_store_name, city, store_type):
         #where={"$and": [{"city":{"$in":city}},{"type":{"$in":store_type}},{"name": {"$eq": store_name}}]}
         where={"$and": [{"city":{"$in":city}},{"type":{"$in":store_type}}]}
         )
-
+    #print(result_hw03)
     answer_hw03=Data_match(result_hw03)
     print(answer_hw03)
     return answer_hw03
@@ -190,5 +192,5 @@ city_hw03=["南投縣"]
 store_type=["美食"]
 start_date = datetime.datetime(2024, 4, 1)
 End_date = datetime.datetime(2024, 5, 1)
-generate_hw02("我想要找有關茶餐點的店家",city,store_type,start_date,End_date)
-#generate_hw03("我想要找南投縣的田媽媽餐廳，招牌是蕎麥麵", "耄饕客棧", "田媽媽(耄饕客棧)", city_hw03, store_type)
+#generate_hw02("我想要找有關茶餐點的店家",city,store_type,start_date,End_date)
+generate_hw03("我想要找南投縣的田媽媽餐廳，招牌是蕎麥麵", "耄饕客棧", "田媽媽(耄饕客棧)", city_hw03, store_type)
